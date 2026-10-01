@@ -1,0 +1,2001 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FITSTAR</title>
+
+    <style>
+      @font-face {
+        font-family: "Cabinet Grotesk";
+        src: url("./fonts/CabinetGrotesk-Black.otf") format("truetype");
+        font-weight: 700;
+      }
+
+      :root {
+        --white: #fffdf9;
+        --pink: #ff4fa3;
+        --light-pink: #ffd6e8;
+        --green: #1a4d23;
+        --light-green: #d8f8dc;
+        --dark-green: #14532d;
+        --text: #171717;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background-color: var(--white);
+        color: var(--text);
+        font-family: Arial, sans-serif;
+      }
+
+      .page {
+        display: none;
+        min-height: 100vh;
+      }
+
+      #home:target,
+      #wardrobe:target,
+      #style-lab:target,
+      #fits:target {
+        display: block;
+      }
+
+      body:not(:has(.page:target)) #home {
+        display: block;
+      }
+
+      .page-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--green);
+        animation: loaderFadeOut 1.4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        pointer-events: none;
+      }
+
+      .loader-logo {
+        color: var(--pink);
+        font-size: 48px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        animation: loaderLogo 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      @keyframes loaderLogo {
+        0% {
+          opacity: 0;
+          transform: scale(0.92);
+        }
+
+        35% {
+          opacity: 1;
+          transform: scale(1);
+        }
+
+        65% {
+          opacity: 1;
+          transform: scale(1);
+        }
+
+        100% {
+          opacity: 0;
+          transform: scale(1.04);
+        }
+      }
+
+      @keyframes loaderFadeOut {
+        0% {
+          opacity: 1;
+        }
+
+        65% {
+          opacity: 1;
+        }
+
+        100% {
+          opacity: 0;
+          visibility: hidden;
+        }
+      }
+
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 25px 60px;
+      }
+
+      .logo {
+        display: inline-block;
+        text-decoration: none;
+        color: var(--dark-green);
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .logo:hover {
+        animation: logoColorCycle 2.5s ease-in-out infinite;
+      }
+
+      @keyframes logoColorCycle {
+        0% {
+          color: #14532d;
+        }
+
+        25% {
+          color: #ff4fa3;
+        }
+
+        50% {
+          color: #1a4d23;
+        }
+
+        75% {
+          color: #ff7abb;
+        }
+
+        100% {
+          color: #14532d;
+        }
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+      }
+
+      .nav-links a {
+        display: inline-block;
+        text-decoration: none;
+        color: var(--text);
+        font-size: 16px;
+        transition:
+          color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+          transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .nav-links a:hover {
+        color: var(--pink);
+        transform: translateY(-2px);
+      }
+
+      .home {
+        background: transparent;
+      }
+
+      .home .background {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(
+          to bottom,
+          var(--white) 0%,
+          var(--white) 35%,
+          #fff8fb 50%,
+          var(--light-pink) 75%,
+          var(--light-pink) 100%
+        );
+      }
+
+      .home .hero {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 60px;
+        background: transparent;
+      }
+
+      .home .hero-visual {
+        position: relative;
+        width: 450px;
+        height: 500px;
+      }
+
+      .home .hero-content {
+        max-width: 650px;
+        animation: heroEnter 0.8s ease-out;
+      }
+
+      .home .eyebrow {
+        color: var(--green);
+        font-size: 14px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+      }
+
+      .home .hero h1 {
+        font-size: 80px;
+        line-height: 0.95;
+        font-weight: 800;
+      }
+
+      .home .hero h1 span {
+        color: var(--pink);
+      }
+
+      .home .hero-description {
+        margin-top: 30px;
+        max-width: 500px;
+        font-size: 18px;
+        line-height: 1.6;
+      }
+
+      .home .hero-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 35px;
+      }
+
+      .home .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px 28px;
+        min-width: 170px;
+        border-radius: 50px;
+        text-decoration: none !important;
+        font-size: 16px;
+        font-weight: bold;
+        transition:
+          background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+          color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+          transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .home .primary {
+        background-color: var(--pink);
+        color: white;
+      }
+
+      .home .secondary {
+        background-color: var(--green);
+        color: white;
+        border: none;
+      }
+
+      .home .primary:hover {
+        background-color: white;
+        color: var(--pink);
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .home .secondary:hover {
+        background-color: white;
+        color: var(--green);
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .home .fashion-card {
+        position: absolute;
+        width: 190px;
+        height: 250px;
+        border-radius: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        transition:
+          transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .home .fashion-card p {
+        margin-top: 20px;
+        font-size: 13px;
+        font-weight: bold;
+        letter-spacing: 2px;
+      }
+
+      .home .clothing-shape {
+        font-size: 70px;
+      }
+
+      .home .card-one {
+        top: 30px;
+        left: 20px;
+        background-color: var(--light-pink);
+        transform: rotate(-8deg);
+      }
+
+      .home .card-two {
+        top: 120px;
+        right: 20px;
+        background-color: var(--light-green);
+        transform: rotate(7deg);
+      }
+
+      .home .card-three {
+        bottom: 10px;
+        left: 100px;
+        background-color: white;
+        transform: rotate(-3deg);
+      }
+
+      .home .fashion-card:hover {
+        transform: translateY(-10px) rotate(0deg) scale(1.03);
+        box-shadow: 0 25px 45px rgba(0, 0, 0, 0.16);
+      }
+
+      .home .decor-star {
+        position: absolute;
+        font-size: 30px;
+        color: var(--pink);
+        animation: floatingStar 3s ease-in-out infinite;
+      }
+
+      .home .star-one {
+        top: 10px;
+        right: 35px;
+      }
+
+      .home .star-two {
+        bottom: 70px;
+        left: 15px;
+        color: var(--green);
+        animation-delay: 1s;
+      }
+
+      .home .how-it-works {
+        padding: 120px 60px;
+      }
+
+      .home .section-heading {
+        max-width: 700px;
+        margin-bottom: 60px;
+      }
+
+      .home .section-eyebrow {
+        color: var(--green);
+        font-size: 14px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-bottom: 18px;
+      }
+
+      .home .section-heading h2 {
+        font-size: 64px;
+        line-height: 1;
+        margin: 0;
+      }
+
+      .home .section-heading h2 span {
+        color: var(--pink);
+      }
+
+      .home .section-description {
+        max-width: 500px;
+        margin-top: 25px;
+        font-size: 18px;
+        line-height: 1.6;
+      }
+
+      .home .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+      }
+
+      .home .step-card {
+        position: relative;
+        min-height: 320px;
+        padding: 35px;
+        background-color: var(--white);
+        border-radius: 30px;
+        transition:
+          transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .home .step-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+      }
+
+      .home .step-number {
+        color: var(--pink);
+        font-size: 14px;
+        font-weight: bold;
+        letter-spacing: 2px;
+      }
+
+      .home .step-icon {
+        width: 65px;
+        height: 65px;
+        margin-top: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: var(--light-green);
+        color: var(--green);
+        font-size: 28px;
+        transition:
+          transform 0.5s ease,
+          background-color 0.5s ease,
+          color 0.5s ease;
+      }
+
+      .home .step-card:hover .step-icon {
+        transform: rotate(10deg) scale(1.1);
+        background-color: var(--green);
+        color: white;
+      }
+
+      .home .step-card h3 {
+        margin-top: 25px;
+        font-size: 30px;
+        color: var(--dark-green);
+      }
+
+      .home .step-card p {
+        margin-top: 12px;
+        max-width: 300px;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      .home .featured-fits {
+        padding: 120px 60px;
+      }
+
+      .home .featured-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 60px;
+      }
+
+      .home .featured-heading h2 {
+        margin: 0;
+        font-size: 64px;
+        line-height: 1;
+      }
+
+      .home .featured-heading h2 span {
+        color: var(--pink);
+      }
+
+      .home .featured-description {
+        max-width: 350px;
+        font-size: 17px;
+        line-height: 1.6;
+      }
+
+      .home .fit-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1fr;
+        gap: 25px;
+      }
+
+      .home .fit-card {
+        overflow: hidden;
+        background-color: var(--white);
+        border-radius: 30px;
+        transition:
+          transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .home .fit-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+      }
+
+      .home .fit-image {
+        height: 420px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.6s ease;
+        overflow: hidden;
+      }
+
+      .home .fit-card:hover .fit-image {
+        transform: scale(1.04);
+      }
+
+      .home .fit-image img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: contain;
+      }
+
+      .home .fit-image span {
+        font-size: 90px;
+      }
+
+      .home .fit-pink {
+        background-color: var(--light-pink);
+        color: var(--pink);
+      }
+
+      .home .fit-green {
+        background-color: var(--light-green);
+        color: var(--green);
+      }
+
+      .home .fit-neutral {
+        background-color: #eeeeea;
+        color: var(--dark-green);
+      }
+
+      .home .fit-info {
+        padding: 25px;
+      }
+
+      .home .fit-info h3 {
+        margin: 0;
+        font-size: 24px;
+        color: var(--dark-green);
+      }
+
+      .home .fit-info p {
+        margin-top: 7px;
+        font-size: 14px;
+      }
+
+      .home .final-cta {
+        position: relative;
+        margin: 60px;
+        padding: 100px 70px;
+        overflow: hidden;
+        border-radius: 40px;
+        background-color: var(--green);
+        color: white;
+      }
+
+      .home .cta-content {
+        position: relative;
+        z-index: 2;
+        max-width: 700px;
+      }
+
+      .home .cta-eyebrow {
+        margin-bottom: 20px;
+        font-size: 14px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        color: var(--light-pink);
+      }
+
+      .home .cta-content h2 {
+        margin: 0;
+        font-size: 72px;
+        line-height: 0.95;
+      }
+
+      .home .cta-content h2 span {
+        color: var(--pink);
+      }
+
+      .home .cta-content > p {
+        max-width: 500px;
+        margin-top: 25px;
+        font-size: 18px;
+        line-height: 1.6;
+      }
+
+      .home .cta-button {
+        margin-top: 30px;
+        background-color: white;
+        color: var(--green);
+        border-radius: 50px;
+      }
+
+      .home .cta-button:hover {
+        background-color: var(--pink);
+        color: white;
+      }
+
+      .home .cta-decoration {
+        position: absolute;
+        z-index: 1;
+        font-size: 80px;
+        animation: ctaFloat 4s ease-in-out infinite;
+      }
+
+      .home .decoration-one {
+        top: 35px;
+        right: 100px;
+        color: var(--pink);
+      }
+
+      .home .decoration-two {
+        bottom: 30px;
+        right: 280px;
+        color: var(--light-pink);
+        font-size: 45px;
+        animation-delay: 1s;
+      }
+
+      .home .cta-circle {
+        position: absolute;
+        width: 350px;
+        height: 350px;
+        right: -100px;
+        bottom: -180px;
+        border-radius: 50%;
+        background-color: var(--pink);
+        opacity: 0.9;
+      }
+
+      @keyframes ctaFloat {
+        0% {
+          transform: translateY(0) rotate(0deg);
+        }
+
+        50% {
+          transform: translateY(-12px) rotate(8deg);
+        }
+
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+      }
+
+      @keyframes floatingStar {
+        0% {
+          transform: translateY(0);
+        }
+
+        50% {
+          transform: translateY(-10px);
+        }
+
+        100% {
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes heroEnter {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .wardrobe,
+      .style-lab,
+      .fits {
+        background-color: var(--white);
+        color: var(--text);
+      }
+
+      .wardrobe .page-header {
+        padding: 80px 60px 50px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 40px;
+      }
+
+      .wardrobe .eyebrow {
+        color: var(--green);
+        font-size: 14px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-bottom: 18px;
+      }
+
+      .wardrobe .page-header h1 {
+        font-size: 72px;
+        line-height: 0.95;
+      }
+
+      .wardrobe .page-header h1 span {
+        color: var(--pink);
+      }
+
+      .wardrobe .page-header-text {
+        max-width: 380px;
+        font-size: 17px;
+        line-height: 1.6;
+      }
+
+      .wardrobe .closet {
+        padding: 20px 60px 120px;
+      }
+
+      .wardrobe .closet-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 35px;
+        gap: 20px;
+      }
+
+      .wardrobe .categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .wardrobe .category {
+        padding: 12px 22px;
+        border-radius: 50px;
+        background-color: var(--light-pink);
+        color: var(--text);
+        font-size: 14px;
+        font-weight: bold;
+        transition:
+          background-color 0.4s ease,
+          color 0.4s ease,
+          transform 0.4s ease;
+      }
+
+      .wardrobe .category:first-child {
+        background-color: var(--pink);
+        color: white;
+      }
+
+      .wardrobe .category:hover {
+        transform: translateY(-3px);
+        background-color: var(--green);
+        color: white;
+      }
+
+      .wardrobe .closet-count {
+        font-size: 14px;
+        color: #666;
+      }
+
+      .wardrobe .clothing-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 22px;
+      }
+
+      .wardrobe .clothing-card {
+        overflow: hidden;
+        border-radius: 28px;
+        background-color: white;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+        transition:
+          transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .wardrobe .clothing-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+      }
+
+      .wardrobe .clothing-image {
+        height: 330px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        transition: transform 0.6s ease;
+      }
+
+      .wardrobe .clothing-card:hover .clothing-image {
+        transform: scale(1.03);
+      }
+
+      .wardrobe .clothing-image img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: contain;
+        transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .wardrobe .clothing-card:hover .clothing-image img {
+        transform: scale(1.06);
+      }
+
+      .wardrobe .pink-item {
+        background-color: var(--light-pink);
+        color: var(--pink);
+      }
+
+      .wardrobe .green-item {
+        background-color: var(--light-green);
+        color: var(--green);
+      }
+
+      .wardrobe .white-item {
+        background-color: #f1f0eb;
+        color: var(--dark-green);
+      }
+
+      .wardrobe .dark-item {
+        background-color: var(--dark-green);
+        color: white;
+      }
+
+      .wardrobe .clothing-symbol {
+        font-size: 85px;
+        transition: transform 0.5s ease;
+      }
+
+      .wardrobe .clothing-card:hover .clothing-symbol {
+        transform: scale(1.1) rotate(3deg);
+      }
+
+      .wardrobe .clothing-info {
+        padding: 20px;
+      }
+
+      .wardrobe .clothing-info h3 {
+        font-size: 20px;
+        color: var(--dark-green);
+      }
+
+      .wardrobe .clothing-info p {
+        margin-top: 6px;
+        color: #666;
+        font-size: 14px;
+      }
+
+      .style-lab .lab-header {
+        padding: 75px 60px 45px;
+      }
+
+      .style-lab .eyebrow {
+        color: var(--pink);
+        font-size: 14px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-bottom: 18px;
+      }
+
+      .style-lab .lab-header h1 {
+        font-size: 72px;
+        line-height: 0.95;
+      }
+
+      .style-lab .lab-header h1 span {
+        color: var(--pink);
+      }
+
+      .style-lab .lab-header p:last-child {
+        max-width: 520px;
+        margin-top: 25px;
+        font-size: 18px;
+        line-height: 1.6;
+      }
+
+      .style-lab .style-lab-content {
+        padding: 20px 60px 120px;
+      }
+
+      .style-lab .lab-grid {
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 25px;
+      }
+
+      .style-lab .outfit-preview {
+        position: relative;
+        min-height: 650px;
+        overflow: hidden;
+        border-radius: 35px;
+        background-color: var(--light-pink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .style-lab .preview-label {
+        position: absolute;
+        top: 25px;
+        left: 30px;
+        padding: 10px 17px;
+        border-radius: 50px;
+        background-color: white;
+        color: var(--green);
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
+
+      .style-lab .outfit-stack {
+        position: relative;
+        width: 330px;
+        height: 500px;
+      }
+
+      .style-lab .outfit-piece {
+        position: absolute;
+        width: 220px;
+        height: 190px;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 75px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.5s ease;
+        overflow: hidden;
+      }
+
+      .style-lab .outfit-piece img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: contain;
+        object-position: center;
+        transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .style-lab .outfit-piece:hover img {
+        transform: scale(1.05);
+      }
+
+      .style-lab .piece-top {
+        top: 0;
+        left: 55px;
+        background-color: white;
+        transform: rotate(-5deg);
+      }
+
+      .style-lab .piece-bottom {
+        top: 160px;
+        left: 55px;
+        background-color: var(--green);
+        transform: rotate(4deg);
+        color: white;
+      }
+
+      .style-lab .piece-shoes {
+        bottom: 20px;
+        left: 55px;
+        background-color: var(--pink);
+        transform: rotate(-3deg);
+      }
+
+      .style-lab .outfit-preview:hover .piece-top {
+        transform: translateY(-8px) rotate(-7deg);
+      }
+
+      .style-lab .outfit-preview:hover .piece-bottom {
+        transform: translateY(4px) rotate(6deg);
+      }
+
+      .style-lab .outfit-preview:hover .piece-shoes {
+        transform: translateY(8px) rotate(-5deg);
+      }
+
+      .style-lab .lab-options {
+        padding: 35px;
+        border-radius: 35px;
+        background-color: var(--light-green);
+      }
+
+      .style-lab .lab-options h2 {
+        font-size: 32px;
+        color: var(--dark-green);
+      }
+
+      .style-lab .option-group {
+        margin-top: 35px;
+      }
+
+      .style-lab .option-group h3 {
+        margin-bottom: 15px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+      }
+
+      .style-lab .option-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .style-lab .option {
+        padding: 12px 17px;
+        border-radius: 50px;
+        background-color: white;
+        font-size: 14px;
+        transition:
+          transform 0.4s ease,
+          background-color 0.4s ease,
+          color 0.4s ease;
+      }
+
+      .style-lab .option:hover {
+        transform: translateY(-3px);
+        background-color: var(--pink);
+        color: white;
+      }
+
+      .style-lab .accessory-box {
+        margin-top: 40px;
+        padding: 25px;
+        border-radius: 25px;
+        background-color: white;
+      }
+
+      .style-lab .accessory-box h3 {
+        color: var(--green);
+        font-size: 20px;
+      }
+
+      .style-lab .accessory-box p {
+        margin-top: 8px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .style-lab .accessory-items {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .style-lab .accessory {
+        width: 55px;
+        height: 55px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--light-pink);
+        font-size: 25px;
+        transition: transform 0.4s ease;
+      }
+
+      .style-lab .accessory:hover {
+        transform: scale(1.1) rotate(5deg);
+      }
+
+      .style-lab .build-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin-top: 25px;
+        padding: 16px 25px;
+        border-radius: 50px;
+        background-color: var(--pink);
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        transition:
+          background-color 0.4s ease,
+          color 0.4s ease,
+          transform 0.4s ease,
+          box-shadow 0.4s ease;
+      }
+
+      .style-lab .build-button:hover {
+        background-color: white;
+        color: var(--pink);
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .fits .saved-header {
+        padding: 80px 60px 50px;
+      }
+
+      .fits .eyebrow {
+        color: var(--green);
+        font-size: 14px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-bottom: 18px;
+      }
+
+      .fits .saved-header h1 {
+        font-size: 72px;
+        line-height: 0.95;
+      }
+
+      .fits .saved-header h1 span {
+        color: var(--pink);
+      }
+
+      .fits .saved-header p:last-child {
+        max-width: 480px;
+        margin-top: 25px;
+        font-size: 18px;
+        line-height: 1.6;
+      }
+
+      .fits .saved-fits {
+        padding: 20px 60px 120px;
+      }
+
+      .fits .saved-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 25px;
+      }
+
+      .fits .saved-card {
+        overflow: hidden;
+        border-radius: 32px;
+        background-color: white;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+        transition:
+          transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .fits .saved-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 45px rgba(0, 0, 0, 0.13);
+      }
+
+      .fits .saved-image {
+        height: 450px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .fits .saved-image img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: contain;
+        object-position: center;
+        transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .fits .saved-card:hover .saved-image img {
+        transform: scale(1.05);
+      }
+
+      .fits .saved-one {
+        background-color: var(--light-pink);
+      }
+
+      .fits .saved-two {
+        background-color: var(--light-green);
+      }
+
+      .fits .saved-three {
+        background-color: #eeeeea;
+      }
+
+      .fits .mini-outfit {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        transition: transform 0.6s ease;
+      }
+
+      .fits .saved-card:hover .mini-outfit {
+        transform: scale(1.06);
+      }
+
+      .fits .mini-piece {
+        width: 160px;
+        height: 105px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .fits .mini-top {
+        background-color: white;
+      }
+
+      .fits .mini-bottom {
+        background-color: var(--green);
+      }
+
+      .fits .mini-shoe {
+        background-color: var(--pink);
+      }
+
+      .fits .saved-number {
+        position: absolute;
+        top: 22px;
+        left: 22px;
+        padding: 9px 14px;
+        border-radius: 50px;
+        background-color: white;
+        font-size: 12px;
+        font-weight: bold;
+        color: var(--dark-green);
+        z-index: 2;
+      }
+
+      .fits .heart {
+        position: absolute;
+        top: 22px;
+        right: 22px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: white;
+        color: var(--pink);
+        transition: transform 0.4s ease;
+        z-index: 2;
+      }
+
+      .fits .saved-card:hover .heart {
+        transform: scale(1.1);
+      }
+
+      .fits .saved-info {
+        padding: 25px;
+      }
+
+      .fits .saved-info h2 {
+        font-size: 25px;
+        color: var(--dark-green);
+      }
+
+      .fits .saved-info p {
+        margin-top: 7px;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .fits .saved-tags {
+        display: flex;
+        gap: 7px;
+        margin-top: 18px;
+      }
+
+      .fits .tag {
+        padding: 7px 12px;
+        border-radius: 50px;
+        background-color: var(--light-green);
+        color: var(--green);
+        font-size: 11px;
+        font-weight: bold;
+      }
+
+      .fits .tag.pink {
+        background-color: var(--light-pink);
+        color: var(--pink);
+      }
+
+      footer {
+        padding: 40px 60px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      footer p {
+        font-size: 14px;
+        color: #666;
+      }
+
+      @media (max-width: 1000px) {
+        .wardrobe .clothing-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .wardrobe .page-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+
+      @media (max-width: 950px) {
+        .style-lab .lab-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .fits .saved-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 700px) {
+        .navbar {
+          padding: 20px 25px;
+        }
+
+        .nav-links {
+          gap: 15px;
+        }
+
+        .nav-links a {
+          font-size: 13px;
+        }
+
+        .home .hero {
+          padding: 40px 25px;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .home .hero h1 {
+          font-size: 52px;
+        }
+
+        .home .hero-visual {
+          width: 100%;
+          margin-top: 50px;
+          transform: scale(0.8);
+          transform-origin: top left;
+        }
+
+        .home .how-it-works,
+        .home .featured-fits {
+          padding-left: 25px;
+          padding-right: 25px;
+        }
+
+        .home .section-heading h2,
+        .home .featured-heading h2 {
+          font-size: 52px;
+        }
+
+        .home .steps,
+        .home .fit-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .home .featured-heading {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 25px;
+        }
+
+        .home .final-cta {
+          margin: 30px 25px;
+          padding: 70px 35px;
+        }
+
+        .home .cta-content h2 {
+          font-size: 52px;
+        }
+
+        .wardrobe .page-header,
+        .wardrobe .closet,
+        .style-lab .lab-header,
+        .style-lab .style-lab-content,
+        .fits .saved-header,
+        .fits .saved-fits {
+          padding-left: 25px;
+          padding-right: 25px;
+        }
+
+        .wardrobe .page-header h1,
+        .style-lab .lab-header h1,
+        .fits .saved-header h1 {
+          font-size: 52px;
+        }
+
+        .wardrobe .clothing-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .wardrobe .closet-controls {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .style-lab .outfit-preview {
+          min-height: 550px;
+        }
+
+        .style-lab .outfit-stack {
+          transform: scale(0.8);
+        }
+
+        .fits .saved-grid {
+          grid-template-columns: 1fr;
+        }
+
+        footer {
+          padding: 30px 25px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="home" class="page home">
+      <div class="page-loader">
+        <div class="loader-logo">FITST✦R</div>
+      </div>
+
+      <div class="background"></div>
+
+      <header>
+        <nav class="navbar">
+          <a href="#home" class="logo">FITST✦R</a>
+
+          <div class="nav-links">
+            <a href="#home">HOME</a>
+            <a href="#wardrobe">WARDROBE</a>
+            <a href="#style-lab">STYLE LAB</a>
+            <a href="#fits">FITS</a>
+          </div>
+        </nav>
+
+        <main>
+          <section class="hero">
+            <div class="hero-content">
+              <p class="eyebrow">YOUR DIGIT✦L WARDR✦BE</p>
+
+              <h1>
+                BUILD Y✦UR NEXT
+                <span>FIT</span>
+              </h1>
+
+              <p class="description">CURATE OUTFITS, MIX YOUR ARTICLES</p>
+
+              <div class="hero-buttons">
+                <a href="#style-lab" class="button primary">
+                  ★ Start Curating
+                </a>
+
+                <a href="#wardrobe" class="button secondary">
+                  Explore Closet
+                </a>
+              </div>
+            </div>
+
+            <div class="hero-visual">
+              <div class="fashion-card card-one">
+                <div class="clothing-shape">✦</div>
+                <p>TOPS</p>
+              </div>
+
+              <div class="fashion-card card-two">
+                <div class="clothing-shape">✦</div>
+                <p>BOTTOMS</p>
+              </div>
+
+              <div class="fashion-card card-three">
+                <div class="clothing-shape">✦</div>
+                <p>SHOES</p>
+              </div>
+
+              <span class="decor-star star-one">✦</span>
+              <span class="decor-star star-two">✦</span>
+            </div>
+          </section>
+
+          <section class="how-it-works">
+            <div class="section-heading">
+              <p class="section-eyebrow">THE FITSTAR METHOD ✦</p>
+
+              <h2>
+                From closet
+                <span>to fit.</span>
+              </h2>
+
+              <p class="section-description">
+                Turn the clothes you already own into outfits worth wearing.
+              </p>
+            </div>
+
+            <div class="steps">
+              <div class="step-card">
+                <div class="step-number">01</div>
+
+                <div class="step-icon">＋</div>
+
+                <h3>Add</h3>
+
+                <p>
+                  Build your digital closet with the pieces you already own.
+                </p>
+              </div>
+
+              <div class="step-card">
+                <div class="step-number">02</div>
+
+                <div class="step-icon">✦</div>
+
+                <h3>Curate</h3>
+
+                <p>
+                  Mix and match your pieces to discover combinations you haven't
+                  tried.
+                </p>
+              </div>
+
+              <div class="step-card">
+                <div class="step-number">03</div>
+
+                <div class="step-icon">★</div>
+
+                <h3>Style</h3>
+
+                <p>
+                  Finish the look with accessories, colors and your own personal
+                  style.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="featured-fits">
+            <div class="featured-heading">
+              <div>
+                <p class="section-eyebrow">DISCOVER YOUR STYLE ✦</p>
+
+                <h2>
+                  Fits worth
+                  <span>saving.</span>
+                </h2>
+              </div>
+
+              <p class="featured-description">
+                Explore combinations, moods and styles to find inspiration for
+                your next outfit.
+              </p>
+            </div>
+
+            <div class="fit-grid">
+              <article class="fit-card fit-card-large">
+                <div class="fit-image fit-pink">
+                  <img src="images/outfit1.jpg" alt="Soft Street outfit" />
+                </div>
+
+                <div class="fit-info">
+                  <h3>Soft Street</h3>
+                  <p>Casual · Everyday</p>
+                </div>
+              </article>
+
+              <article class="fit-card">
+                <div class="fit-image fit-green">
+                  <img src="images/outfit2.jpg" alt="Clean Lines outfit" />
+                </div>
+
+                <div class="fit-info">
+                  <h3>Clean Lines</h3>
+                  <p>Minimal · Smart</p>
+                </div>
+              </article>
+
+              <article class="fit-card">
+                <div class="fit-image fit-neutral">
+                  <img src="images/outfit3.jpg" alt="Off Duty outfit" />
+                </div>
+
+                <div class="fit-info">
+                  <h3>Off Duty</h3>
+                  <p>Relaxed · Streetwear</p>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="final-cta">
+            <div class="cta-content">
+              <p class="cta-eyebrow">READY WHEN YOU ARE ✦</p>
+
+              <h2>
+                Your closet.
+                <span>Your rules.</span>
+              </h2>
+
+              <p>
+                Stop wondering what to wear. Start creating fits you'll actually
+                want to wear.
+              </p>
+
+              <a href="#style-lab" class="button cta-button"> ★ Build a Fit </a>
+            </div>
+
+            <div class="cta-decoration decoration-one">✦</div>
+            <div class="cta-decoration decoration-two">✦</div>
+            <div class="cta-circle"></div>
+          </section>
+        </main>
+      </header>
+    </div>
+
+    <div id="wardrobe" class="page wardrobe">
+      <div class="page-loader">
+        <div class="loader-logo">FITST✦R</div>
+      </div>
+
+      <header>
+        <nav class="navbar">
+          <a href="#home" class="logo">FITST✦R</a>
+
+          <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#wardrobe">My Closet</a>
+            <a href="#style-lab">Style Lab</a>
+            <a href="#fits">My Fits</a>
+          </div>
+        </nav>
+      </header>
+
+      <main>
+        <section class="page-header">
+          <div>
+            <p class="eyebrow">YOUR DIGITAL WARDROBE ✦</p>
+
+            <h1>
+              Everything<br />
+              you <span>own.</span>
+            </h1>
+          </div>
+
+          <p class="page-header-text">
+            Keep your wardrobe organised, explore your pieces and discover new
+            ways to wear what you already have.
+          </p>
+        </section>
+
+        <section class="closet">
+          <div class="closet-controls">
+            <div class="categories">
+              <div class="category">All</div>
+              <div class="category">Tops</div>
+              <div class="category">Bottoms</div>
+              <div class="category">Shoes</div>
+              <div class="category">Accessories</div>
+            </div>
+
+            <p class="closet-count">08 pieces in your closet</p>
+          </div>
+
+          <div class="clothing-grid">
+            <article class="clothing-card">
+              <div class="clothing-image pink-item">
+                <img src="images/shirt.jpg" alt="Oversized Tee" />
+              </div>
+
+              <div class="clothing-info">
+                <h3>Oversized Tee</h3>
+                <p>Tops · Casual</p>
+              </div>
+            </article>
+
+            <article class="clothing-card">
+              <div class="clothing-image green-item">
+                <img src="images/pants.jpg" alt="Wide Leg Pants" />
+              </div>
+
+              <div class="clothing-info">
+                <h3>Wide Leg Pants</h3>
+                <p>Bottoms · Everyday</p>
+              </div>
+            </article>
+
+            <article class="clothing-card">
+              <div class="clothing-image white-item">
+                <img src="images/shoes.jpg" alt="Classic Sneakers" />
+              </div>
+
+              <div class="clothing-info">
+                <h3>Classic Sneakers</h3>
+                <p>Shoes · Everyday</p>
+              </div>
+            </article>
+
+            <article class="clothing-card">
+              <div class="clothing-image dark-item">
+                <img src="images/jacket.jpg" alt="Overshirt" />
+              </div>
+
+              <div class="clothing-info">
+                <h3>Overshirt</h3>
+                <p>Layers · Street</p>
+              </div>
+            </article>
+
+            <article class="clothing-card">
+              <div class="clothing-image green-item">
+                <img src="images/oxford.jpg" alt="Oxford Shirt" />
+              </div>
+
+              <div class="clothing-info">
+                <h3>Oxford Shirt</h3>
+                <p>Tops · Smart</p>
+              </div>
+            </article>
+
+            <article class="clothing-card">
+              <div class="clothing-image pink-item">
+                <img src="images/cap.jpg" alt="Everyday Cap" />
+              </div>
+
+              <div class="clothing-info">
+                <h3>Everyday Cap</h3>
+                <p>Accessories · Casual</p>
+              </div>
+            </article>
+
+            <article class="clothing-card">
+              <div class="clothing-image white-item">
+                <img src="images/shades.jpg" alt="Black Shades" />
+              </div>
+
+              <div class="clothing-info">
+                <h3>Shades</h3>
+                <p>Accessories · Street</p>
+              </div>
+            </article>
+
+            <article class="clothing-card">
+              <div class="clothing-image dark-item">
+                <img src="images/loafers.jpg" alt="Leather Loafers" />
+              </div>
+
+              <div class="clothing-info">
+                <h3>Leather Loafers</h3>
+                <p>Shoes · Smart</p>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>FITST✦R — Curate your own style.</p>
+        <p>HTML · CSS</p>
+      </footer>
+    </div>
+
+    <div id="style-lab" class="page style-lab">
+      <div class="page-loader">
+        <div class="loader-logo">FITST✦R</div>
+      </div>
+
+      <header>
+        <nav class="navbar">
+          <a href="#home" class="logo">FITST✦R</a>
+
+          <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#wardrobe">My Closet</a>
+            <a href="#style-lab">Style Lab</a>
+            <a href="#fits">My Fits</a>
+          </div>
+        </nav>
+      </header>
+
+      <main>
+        <section class="lab-header">
+          <p class="eyebrow">STYLE LAB ✦</p>
+
+          <h1>
+            Build your<br />
+            <span>next fit.</span>
+          </h1>
+
+          <p>
+            Mix different pieces, experiment with moods and create an outfit
+            that feels like you.
+          </p>
+        </section>
+
+        <section class="style-lab-content">
+          <div class="lab-grid">
+            <div class="outfit-preview">
+              <div class="preview-label">OUTFIT PREVIEW</div>
+
+              <div class="outfit-stack">
+                <div class="outfit-piece piece-top">
+                  <img src="images/shirt.jpg" alt="Oversized Tee" />
+                </div>
+
+                <div class="outfit-piece piece-bottom">
+                  <img src="images/pants.jpg" alt="Wide Leg Pants" />
+                </div>
+
+                <div class="outfit-piece piece-shoes">
+                  <img src="images/shoes.jpg" alt="Classic Sneakers" />
+                </div>
+              </div>
+            </div>
+
+            <aside class="lab-options">
+              <h2>Curate it.</h2>
+
+              <div class="option-group">
+                <h3>Mood</h3>
+
+                <div class="option-buttons">
+                  <div class="option">Minimal</div>
+                  <div class="option">Casual</div>
+                  <div class="option">Street</div>
+                  <div class="option">Smart</div>
+                </div>
+              </div>
+
+              <div class="option-group">
+                <h3>Colour</h3>
+
+                <div class="option-buttons">
+                  <div class="option">Green</div>
+                  <div class="option">Pink</div>
+                  <div class="option">Neutral</div>
+                  <div class="option">Dark</div>
+                </div>
+              </div>
+
+              <div class="option-group">
+                <h3>Occasion</h3>
+
+                <div class="option-buttons">
+                  <div class="option">Everyday</div>
+                  <div class="option">College</div>
+                  <div class="option">Date</div>
+                  <div class="option">Party</div>
+                </div>
+              </div>
+
+              <div class="accessory-box">
+                <h3>Complete the look ✦</h3>
+
+                <p>
+                  These accessories could work with your current combination.
+                </p>
+
+                <div class="accessory-items">
+                  <div class="accessory">🕶️</div>
+                  <div class="accessory">⌚</div>
+                  <div class="accessory">🧢</div>
+                </div>
+              </div>
+
+              <a href="#fits" class="build-button"> ★ Save This Fit </a>
+            </aside>
+          </div>
+        </section>
+      </main>
+
+      <footer
+        style="
+          padding: 40px 60px;
+          border-top: 1px solid #eee;
+          display: flex;
+          justify-content: space-between;
+        "
+      >
+        <p style="font-size: 14px; color: #666">
+          FITST✦R — Curate your own style.
+        </p>
+
+        <p style="font-size: 14px; color: #666">HTML · CSS</p>
+      </footer>
+    </div>
+
+    <div id="fits" class="page fits">
+      <div class="page-loader">
+        <div class="loader-logo">FITST✦R</div>
+      </div>
+
+      <header>
+        <nav class="navbar">
+          <a href="#home" class="logo">FITST✦R</a>
+
+          <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#wardrobe">My Closet</a>
+            <a href="#style-lab">Style Lab</a>
+            <a href="#fits">My Fits</a>
+          </div>
+        </nav>
+      </header>
+
+      <main>
+        <section class="saved-header">
+          <p class="eyebrow">YOUR COLLECTION ✦</p>
+
+          <h1>
+            Fits worth<br />
+            <span>remembering.</span>
+          </h1>
+
+          <p>
+            Your favourite combinations, saved in one place. Come back whenever
+            you need some outfit inspiration.
+          </p>
+        </section>
+
+        <section class="saved-fits">
+          <div class="saved-grid">
+            <article class="saved-card">
+              <div class="saved-image saved-one">
+                <img src="images/outfit1.jpg" alt="Soft Street outfit" />
+
+                <div class="saved-number">FIT 01</div>
+
+                <div class="heart">♥</div>
+              </div>
+
+              <div class="saved-info">
+                <h2>Soft Street</h2>
+
+                <p>An easy everyday combination.</p>
+
+                <div class="saved-tags">
+                  <span class="tag pink"> CASUAL </span>
+                  <span class="tag"> EVERYDAY </span>
+                </div>
+              </div>
+            </article>
+
+            <article class="saved-card">
+              <div class="saved-image saved-two">
+                <img src="images/outfit2.jpg" alt="Clean Lines outfit" />
+
+                <div class="saved-number">FIT 02</div>
+
+                <div class="heart">♥</div>
+              </div>
+
+              <div class="saved-info">
+                <h2>Clean Lines</h2>
+
+                <p>Simple pieces with a smarter edge.</p>
+
+                <div class="saved-tags">
+                  <span class="tag"> SMART </span>
+                  <span class="tag pink"> MINIMAL </span>
+                </div>
+              </div>
+            </article>
+
+            <article class="saved-card">
+              <div class="saved-image saved-three">
+                <img src="images/outfit3.jpg" alt="Off Duty outfit" />
+
+                <div class="saved-number">FIT 03</div>
+
+                <div class="heart">♥</div>
+              </div>
+
+              <div class="saved-info">
+                <h2>Off Duty</h2>
+
+                <p>Relaxed layers for an effortless look.</p>
+
+                <div class="saved-tags">
+                  <span class="tag pink"> STREET </span>
+                  <span class="tag"> RELAXED </span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>FITST✦R — Curate your own style.</p>
+        <p>HTML · CSS</p>
+      </footer>
+    </div>
+  </body>
+</html>
